@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(npm i:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(rg:*)",
+      "Bash(npm run scan:*)",
+      "Bash(npm run prettier:*)",
+      "Bash(npx prettier:*)",
+      "Bash(sfdx force:org:create:*)",
+      "Bash(sf org create:*)",
+      "Bash(pkill:*)",
+      "Bash(sf project deploy validate:*)",
+      "Bash(xml:*)",
+      "Bash(npm update:*)",
+      "Bash(sf apex run test:*)",
+      "Bash(npm run test:*)",
+      "Bash(sf project deploy start:*)",
+      "Bash(git fetch:*)",
+      "Bash(git stash:*)",
+      "Bash(git checkout:*)",
+      "Bash(git reset:*)",
+      "Bash(git restore:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}
