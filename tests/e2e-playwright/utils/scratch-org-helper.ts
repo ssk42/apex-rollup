@@ -30,8 +30,8 @@ export class ScratchOrgHelper {
       
       return {
         username: orgInfo.username,
-        password: password,
-        loginUrl: orgInfo.loginUrl || 'https://login.salesforce.com',
+        password: orgInfo.accessToken, // Use access token as "password" for frontdoor auth
+        loginUrl: orgInfo.instanceUrl || 'https://login.salesforce.com',
         orgId: orgInfo.id
       };
       
@@ -91,10 +91,13 @@ export class ScratchOrgHelper {
     try {
       const result = execSync(
         `sf org display --target-org ${this.SCRATCH_ORG_ALIAS} --json`,
-        { encoding: 'utf8', timeout: 30000 }
+        { encoding: 'utf8', timeout: 30000, env: { ...process.env, FORCE_COLOR: '0' } }
       );
       
-      const orgData = JSON.parse(result);
+      // Clean up any ANSI color codes that might have leaked through
+      const cleanResult = result.replace(/\u001b\[[0-9;]*m/g, '');
+      
+      const orgData = JSON.parse(cleanResult);
       
       if (orgData.status !== 0) {
         throw new Error(`CLI command failed: ${orgData.message}`);
@@ -119,10 +122,11 @@ export class ScratchOrgHelper {
       // Try to generate a password (this will fail if password already exists)
       const result = execSync(
         `sf org generate password --target-org ${this.SCRATCH_ORG_ALIAS} --json`,
-        { encoding: 'utf8', timeout: 30000 }
+        { encoding: 'utf8', timeout: 30000, env: { ...process.env, FORCE_COLOR: '0' } }
       );
       
-      const passwordData = JSON.parse(result);
+      const cleanResult = result.replace(/\u001b\[[0-9;]*m/g, '');
+      const passwordData = JSON.parse(cleanResult);
       
       if (passwordData.status === 0 && passwordData.result?.password) {
         console.log('✅ Generated new password for scratch org');
@@ -164,7 +168,7 @@ export class ScratchOrgHelper {
       try {
         execSync(
           `sf data query --query "SELECT Id FROM CurrencyType LIMIT 1" --target-org ${this.SCRATCH_ORG_ALIAS}`,
-          { encoding: 'utf8', timeout: 30000 }
+          { encoding: 'utf8', timeout: 30000, env: { ...process.env, FORCE_COLOR: '0' } }
         );
         multiCurrency = true;
       } catch {

@@ -62,19 +62,35 @@ export class SalesforceHelper {
     console.log(`🔐 Authenticating with access token for ${username}...`);
     
     try {
-      // For scratch orgs, we can use the frontdoor.jsp endpoint with session ID
-      const orgUrl = await this.getOrgUrl();
+      // For scratch orgs, get the org URL from the current page or derive from login URL
+      const currentUrl = this.page.url();
+      let orgUrl: string;
+      
+      if (currentUrl.includes('salesforce')) {
+        // Extract from current URL
+        const match = currentUrl.match(/https:\/\/[^\/]+\.salesforce[^\/]*\.com/);
+        orgUrl = match ? match[0] : currentUrl;
+      } else {
+        // This is a fallback, shouldn't happen in normal flow
+        orgUrl = 'https://login.salesforce.com';
+      }
+      
       const frontdoorUrl = `${orgUrl}/secur/frontdoor.jsp?sid=${accessToken}`;
       
       await this.page.goto(frontdoorUrl);
       
-      // Wait for successful authentication
+      // Wait for successful authentication - we might land in setup or main Lightning
       await Promise.race([
         this.page.waitForURL('**/lightning/**', { timeout: 30000 }),
         this.page.waitForSelector('[data-aura-class="oneAppLauncher"]', { timeout: 30000 })
       ]);
       
       console.log('✅ Access token authentication successful');
+      
+      // If we landed in Setup, that's actually fine - we can work from there
+      if (this.page.url().includes('lightning/setup')) {
+        console.log('✅ Authenticated into Lightning Setup - this is sufficient for testing');
+      }
       
       // Handle any post-login modals or popups
       await this.dismissModalIfPresent();
