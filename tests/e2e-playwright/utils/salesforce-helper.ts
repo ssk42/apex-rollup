@@ -307,6 +307,11 @@ export class SalesforceHelper {
     }
   }
 
+  async waitForTimeout(milliseconds: number): Promise<void> {
+    console.log(`⏱️ Waiting for ${milliseconds}ms...`);
+    await this.page.waitForTimeout(milliseconds);
+  }
+
   // Utility Methods
   async waitForElement(selector: string, timeout: number = 10000): Promise<void> {
     await this.page.waitForSelector(selector, { timeout });

@@ -118,46 +118,162 @@ test.describe('Advanced Rollup Features E2E Tests', () => {
     console.log('✅ Performance test completed successfully');
   });
 
-  test('Boolean operations (ALL, NONE, SOME)', async () => {
-    console.log('🔢 Testing boolean operations...');
-    
+  test('Boolean operation (ALL) works correctly', async () => {
+    console.log('🔢 Testing ALL boolean operation...');
+
     const account = await sfHelper.createTestRecord('Account', {
-      Name: `Test Account BOOLEAN ${Date.now()}`
+      Name: `Test Account ALL ${Date.now()}`,
+      Rollup_To_Checkbox__c: false
     });
-    
-    // Test ALL operation - all opportunities closed won
-    const allClosedWonOpps = [
-      { Name: 'Opp 1', StageName: 'Closed Won', AccountId: account.Id },
-      { Name: 'Opp 2', StageName: 'Closed Won', AccountId: account.Id },
-      { Name: 'Opp 3', StageName: 'Closed Won', AccountId: account.Id }
+
+    // Create opportunities that all match the criteria
+    const allMatchingOpps = [
+      { Name: 'Opp 1', StageName: 'Closed Won', IsPrivate: true, AccountId: account.Id },
+      { Name: 'Opp 2', StageName: 'Closed Won', IsPrivate: true, AccountId: account.Id }
     ];
-    
-    for (const opp of allClosedWonOpps) {
+
+    for (const opp of allMatchingOpps) {
       await sfHelper.createTestRecord('Opportunity', {
         ...opp,
         Amount: 1000,
         CloseDate: '2024-12-31'
       });
     }
-    
+
     // Configure ALL rollup
     const allRollupConfig: RollupConfiguration = {
       parentObject: 'Account',
       childObject: 'Opportunity',
       operation: 'ALL',
-      rollupField: 'SLAExpirationDate__c', // Using as boolean field
+      rollupField: 'Rollup_To_Checkbox__c',
+      lookupField: 'AccountId',
+      whereClause: "IsPrivate = true"
+    };
+
+    await sfHelper.configureRollup(allRollupConfig);
+    await sfHelper.executeRollup();
+
+    let result = await sfHelper.getRecord('Account', account.Id!, ['Rollup_To_Checkbox__c']);
+    expect(result.Rollup_To_Checkbox__c).toBeTruthy();
+    
+    // Now add one that does NOT match
+    await sfHelper.createTestRecord('Opportunity', {
+      Name: 'Opp 3 Not Private',
+      StageName: 'Closed Won',
+      IsPrivate: false,
+      AccountId: account.Id,
+      Amount: 1000,
+      CloseDate: '2024-12-31'
+    });
+    
+    // Rerun rollup - can we assume DML triggers it? Let's execute explicitly for test stability
+    await sfHelper.executeRollup();
+    
+    result = await sfHelper.getRecord('Account', account.Id!, ['Rollup_To_Checkbox__c']);
+    expect(result.Rollup_To_Checkbox__c).toBeFalsy();
+
+    await sfHelper.takeScreenshot('all-rollup-result');
+    console.log('✅ ALL boolean operation test completed');
+  });
+
+  test('Boolean operation (SOME) works correctly', async () => {
+    console.log('🔢 Testing SOME boolean operation...');
+
+    const account = await sfHelper.createTestRecord('Account', {
+      Name: `Test Account SOME ${Date.now()}`,
+      Rollup_To_Checkbox__c: false
+    });
+
+    // Create opportunities where none match initially
+    await sfHelper.createTestRecord('Opportunity', {
+      Name: 'Opp 1 Not Private',
+      IsPrivate: false,
+      AccountId: account.Id,
+      Amount: 1000,
+      CloseDate: '2024-12-31',
+      StageName: 'Prospecting',
+    });
+
+    const someRollupConfig: RollupConfiguration = {
+      parentObject: 'Account',
+      childObject: 'Opportunity',
+      operation: 'SOME',
+      rollupField: 'Rollup_To_Checkbox__c',
+      lookupField: 'AccountId',
+      whereClause: "IsPrivate = true"
+    };
+
+    await sfHelper.configureRollup(someRollupConfig);
+    await sfHelper.executeRollup();
+
+    let result = await sfHelper.getRecord('Account', account.Id!, ['Rollup_To_Checkbox__c']);
+    expect(result.Rollup_To_Checkbox__c).toBeFalsy();
+
+    // Now add one that DOES match
+    await sfHelper.createTestRecord('Opportunity', {
+      Name: 'Opp 2 Is Private',
+      IsPrivate: true,
+      AccountId: account.Id,
+      Amount: 1000,
+      CloseDate: '2024-12-31',
+      StageName: 'Prospecting',
+    });
+
+    await sfHelper.executeRollup();
+    result = await sfHelper.getRecord('Account', account.Id!, ['Rollup_To_Checkbox__c']);
+    expect(result.Rollup_To_Checkbox__c).toBeTruthy();
+
+    await sfHelper.takeScreenshot('some-rollup-result');
+    console.log('✅ SOME boolean operation test completed');
+  });
+
+  test('Boolean operation (NONE) works correctly', async () => {
+    console.log('🔢 Testing NONE boolean operation...');
+
+    const account = await sfHelper.createTestRecord('Account', {
+      Name: `Test Account NONE ${Date.now()}`,
+      Rollup_To_Checkbox__c: false
+    });
+
+    // Create opportunities that do not match the where clause
+    await sfHelper.createTestRecord('Opportunity', {
+      Name: 'Opp 1 Not Closed Won',
+      StageName: 'Prospecting',
+      AccountId: account.Id,
+      Amount: 1000,
+      CloseDate: '2024-12-31'
+    });
+
+    const noneRollupConfig: RollupConfiguration = {
+      parentObject: 'Account',
+      childObject: 'Opportunity',
+      operation: 'NONE',
+      rollupField: 'Rollup_To_Checkbox__c',
       lookupField: 'AccountId',
       whereClause: "StageName = 'Closed Won'"
     };
-    
-    await sfHelper.configureRollup(allRollupConfig);
+
+    await sfHelper.configureRollup(noneRollupConfig);
     await sfHelper.executeRollup();
-    
-    const allResult = await sfHelper.getRecord('Account', account.Id!, ['SLAExpirationDate__c']);
-    expect(allResult.SLAExpirationDate__c).toBeTruthy();
-    
-    await sfHelper.takeScreenshot('all-rollup-result');
-    console.log('✅ Boolean operations test completed');
+
+    let result = await sfHelper.getRecord('Account', account.Id!, ['Rollup_To_Checkbox__c']);
+    expect(result.Rollup_To_Checkbox__c).toBeTruthy();
+
+    // Now add one that DOES match, which should make the NONE condition false
+    await sfHelper.createTestRecord('Opportunity', {
+      Name: 'Opp 2 Closed Won',
+      StageName: 'Closed Won',
+      AccountId: account.Id,
+      Amount: 1000,
+      CloseDate: '2024-12-31'
+    });
+
+    await sfHelper.executeRollup();
+    result = await sfHelper.getRecord('Account', account.Id!, ['Rollup_To_Checkbox__c']);
+    expect(result.Rollup_To_Checkbox__c).toBeFalsy();
+
+    await sfHelper.takeScreenshot('none-rollup-result');
+    console.log('✅ NONE boolean operation test completed');
   });
 
   test('Grandparent rollup across multiple relationships', async () => {
@@ -254,7 +370,7 @@ test.describe('Advanced Rollup Features E2E Tests', () => {
     
     // For async processing, we may need to wait and check status
     // This would depend on the actual implementation
-    await sfHelper.page.waitForTimeout(5000); // Wait for async processing
+    await sfHelper.waitForTimeout(5000); // Wait for async processing
     
     const updatedAccount = await sfHelper.getRecord('Account', account.Id!, ['AnnualRevenue']);
     expect(updatedAccount.AnnualRevenue).toBeGreaterThan(100000); // Should have substantial sum
