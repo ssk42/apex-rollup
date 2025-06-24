@@ -11,16 +11,20 @@
   "devDependencies": {
     "@jongpie/sfdx-bummer-plugin": "^0.0.20",
     "@lwc/eslint-plugin-lwc": "2.1.0",
+    "@playwright/test": "^1.49.0",
     "@prettier/plugin-xml": "3.4.1",
     "@salesforce/cli": "2.75.5",
     "@salesforce/eslint-config-lwc": "3.7.1",
     "@salesforce/eslint-plugin-lightning": "1.0.1",
     "@salesforce/sfdx-lwc-jest": "7.0.1",
     "@salesforce/sfdx-scanner": "^4.12.0",
+    "@types/node": "^22.10.2",
     "husky": "9.1.7",
     "lint-staged": "15.4.3",
+    "playwright": "^1.49.0",
     "prettier": "3.4.2",
-    "prettier-plugin-apex": "2.2.4"
+    "prettier-plugin-apex": "2.2.4",
+    "typescript": "^5.7.2"
   },
   "keywords": [
     "salesforce",
@@ -49,8 +53,15 @@
     "prettier": "prettier",
     "scan": "npm run lint:verify && npm run scan:pmd",
     "scan:pmd": "sf code-analyzer run -r pmd:1 -r pmd:2 -r pmd:3 --workspace rollup/core/**/*.cls --workspace plugins --workspace extra-tests",
-    "test": "npm run test:apex && npm run test:lwc",
+    "test": "npm run test:apex && npm run test:lwc && npm run test:e2e",
     "test:apex": "sh ./scripts/runLocalTests.sh",
-    "test:lwc": "sfdx-lwc-jest --coverage --skipApiVersionCheck"
+    "test:lwc": "sfdx-lwc-jest --coverage --skipApiVersionCheck",
+    "test:e2e": "playwright test",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:comprehensive": "playwright test --config=playwright.comprehensive.config.ts",
+    "test:e2e:report": "playwright show-report",
+    "test:e2e:scratch": "npm run create:org && npm run assign:perms && playwright test && npm run delete:org",
+    "test:e2e:full": "npm run create:org && npm run assign:perms && npm run test:e2e:comprehensive"
   }
 }

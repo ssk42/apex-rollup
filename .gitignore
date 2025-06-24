@@ -1,24 +1,64 @@
+# Environment and secrets
 .env
-node_modules/
-.vim-force.com/
-yarn.lock
-.sfdx/
-.localdevserver/
-debug.log
+*.env
 DEVHUB_SFDX_URL.txt
 PACKAGING_SFDX_URL.txt
-tests/apex
-**/main/default/
-coverage/
-plugins/ExtraCodeCoverage
+
+# Dependencies
+node_modules/
+node-arm64/
+yarn.lock
+package-lock.json
+
+# Salesforce
+.sfdx/
 .sf/
-rollup-namespaced/source
+.localdevserver/
+.vim-force.com/
+**/main/default/
+tests/apex
 sfge-*.log.gz
+.sflogsub
+
+# Build outputs
+coverage/
+rollup-namespaced/source
+plugins/ExtraCodeCoverage
+
+# Test results and artifacts
+test-results/
+playwright-report/
+*.mp4
+*.webm
+*.png
+*.jpg
+*.jpeg
+screenshots/
+
+# Logs
+debug.log
+*.log
+*.log.gz
+
+# Tools
 #PMD
 .pmdCache
+
+# IDE and OS
 #OSX
 .DS_Store
 .config
-.vscode
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+.tmp/
+tmp/
+temp/
+*.tmp
+
+# CI/CD
 config/data/act-pr-event.json
-.sflogsub
