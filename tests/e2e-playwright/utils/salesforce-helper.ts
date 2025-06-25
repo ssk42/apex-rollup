@@ -155,7 +155,18 @@ export class SalesforceHelper {
   async navigateToObject(objectName: string): Promise<void> {
     console.log(`🧭 Navigating to ${objectName} object...`);
     
-    const url = `/lightning/o/${objectName}/list`;
+    // Get the current org base URL and keep the same domain (setup vs regular)
+    const currentUrl = this.page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    
+    if (!baseUrl) {
+      throw new Error('Could not determine base URL from current page');
+    }
+    
+    // Use the exact same domain we're currently on
+    const url = `${baseUrl}/lightning/o/${objectName}/list`;
+    console.log(`Navigating to: ${url}`);
+    
     await this.page.goto(url);
     await this.page.waitForLoadState('networkidle');
     
@@ -163,7 +174,15 @@ export class SalesforceHelper {
   }
 
   async navigateToRecord(objectName: string, recordId: string): Promise<void> {
-    const url = `/lightning/r/${objectName}/${recordId}/view`;
+    // Get the current org base URL
+    const currentUrl = this.page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    
+    if (!baseUrl) {
+      throw new Error('Could not determine base URL from current page');
+    }
+    
+    const url = `${baseUrl}/lightning/r/${objectName}/${recordId}/view`;
     await this.page.goto(url);
     await this.page.waitForLoadState('networkidle');
   }
@@ -173,29 +192,34 @@ export class SalesforceHelper {
     console.log(`📝 Creating ${objectType} test record...`);
     
     try {
-      // Navigate to object and create new record
-      await this.navigateToObject(objectType);
+      // Use Salesforce CLI to create record - much more reliable than UI
+      const fieldValues = Object.entries(data)
+        .filter(([field, value]) => value !== null && value !== undefined) // Skip null values
+        .map(([field, value]) => {
+          // Properly escape single quotes in values and wrap field assignments
+          const escapedValue = String(value).replace(/'/g, "\\'");
+          return `${field}='${escapedValue}'`;
+        })
+        .join(' ');
       
-      await this.page.click('a[title="New"]');
-      await this.page.waitForSelector('form');
+      const command = `sf data create record --sobject ${objectType} --values "${fieldValues}" --target-org apex-rollup-scratch-org --json`;
+      console.log(`Executing: ${command}`);
       
-      // Fill in form fields
-      for (const [field, value] of Object.entries(data)) {
-        await this.fillField(field, value);
+      const result = require('child_process').execSync(command, { 
+        encoding: 'utf8', 
+        timeout: 30000,
+        env: { ...process.env, FORCE_COLOR: '0' }
+      });
+      
+      // Clean up any ANSI color codes
+      const cleanResult = result.replace(/\u001b\[[0-9;]*m/g, '');
+      const createData = JSON.parse(cleanResult);
+      
+      if (createData.status !== 0) {
+        throw new Error(`CLI command failed: ${createData.message}`);
       }
       
-      // Save record
-      await this.page.click('button[name="SaveEdit"]');
-      await this.page.waitForSelector('.slds-notification__content');
-      
-      // Extract record ID from URL
-      await this.page.waitForURL(`**/lightning/r/${objectType}/**/view`);
-      const url = this.page.url();
-      const recordId = url.match(new RegExp(`/r/${objectType}/([a-zA-Z0-9]{15,18})/`))?.[1];
-      
-      if (!recordId) {
-        throw new Error('Failed to extract record ID');
-      }
+      const recordId = createData.result.id;
       
       // Track for cleanup
       this.testRecordIds.add(recordId);

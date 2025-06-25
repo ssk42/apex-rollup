@@ -1,6 +1,12 @@
 {
   "permissions": {
-    "allow": ["Bash(git cherry-pick:*)", "Bash(rm:*)"],
+    "allow": [
+      "Bash(git cherry-pick:*)",
+      "Bash(rm:*)",
+      "Bash(open test-results/screenshots/create-Account-failure-2025-06-24T19-24-30-743Z.png)",
+      "Bash(sf data create record:*)",
+      "Bash(mv:*)"
+    ],
     "deny": []
   }
 }

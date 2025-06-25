@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests/e2e-playwright',
-  testMatch: ['**/simple-*.test.ts', '**/fixed-*.test.ts'],
+  testMatch: ['**/simple-*.test.ts', '**/fixed-*.test.ts', '**/data-*.test.ts'],
   
   /* Run tests in files in parallel */
   fullyParallel: false,
