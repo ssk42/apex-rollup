@@ -10,7 +10,9 @@
       "Bash(open:*)",
       "Bash(npm run test:e2e:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npm update:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }
