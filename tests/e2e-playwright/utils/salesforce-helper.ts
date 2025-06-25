@@ -207,7 +207,8 @@ export class SalesforceHelper {
         const tab = this.page.locator(selector);
         if (await tab.isVisible()) {
           await tab.click();
-          await this.page.waitForLoadState('networkidle');
+          await this.page.waitForLoadState('domcontentloaded', { timeout: 15000 });
+          await this.page.waitForTimeout(2000); // Give tab content time to load
           tabFound = true;
           console.log(`✅ Successfully navigated to ${tabName} tab using selector: ${selector}`);
           break;
