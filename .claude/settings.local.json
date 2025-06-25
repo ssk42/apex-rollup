@@ -5,7 +5,12 @@
       "Bash(rm:*)",
       "Bash(open test-results/screenshots/create-Account-failure-2025-06-24T19-24-30-743Z.png)",
       "Bash(sf data create record:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(grep:*)",
+      "Bash(open:*)",
+      "Bash(npm run test:e2e:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }

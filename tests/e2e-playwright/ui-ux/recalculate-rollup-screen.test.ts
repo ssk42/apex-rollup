@@ -29,46 +29,46 @@ test.describe('Recalculate Rollup Screen', () => {
     
     await sfHelper.takeScreenshot('recalc-interface-loaded');
     
-    // Test form interaction - first let's catalog all form elements
-    console.log('📝 Testing form interactions...');
+    // ACTUALLY TEST FORM INTERACTIONS - let's see what works
+    console.log('📝 ACTUALLY testing form interactions...');
     
-    // Get a comprehensive view of all form elements
-    console.log('🔍 Cataloging all form elements on the page...');
+    console.log('🔍 Finding all actual input fields...');
     
-    const allFormElements = [
-      'input', 'select', 'textarea', 'button',
-      'lightning-input', 'lightning-combobox', 'lightning-picklist', 'lightning-textarea', 'lightning-button',
-      '[data-name]', '[name]', '[role="combobox"]', '[role="button"]'
-    ];
+    // Get all inputs and test them individually
+    const inputs = page.locator('input, textarea');
+    const inputCount = await inputs.count();
+    console.log(`Found ${inputCount} input/textarea elements`);
     
-    let foundElements = [];
-    for (const selector of allFormElements) {
-      const elements = page.locator(selector);
-      const count = await elements.count();
-      if (count > 0) {
-        foundElements.push(`${selector}: ${count}`);
+    for (let i = 0; i < inputCount; i++) {
+      try {
+        const input = inputs.nth(i);
+        const name = await input.getAttribute('name');
+        const placeholder = await input.getAttribute('placeholder');
+        const value = await input.inputValue();
+        const visible = await input.isVisible();
+        const required = await input.getAttribute('required');
         
-        // Log attributes of first few elements for debugging
-        for (let i = 0; i < Math.min(count, 3); i++) {
+        console.log(`Input ${i+1}: name="${name}" placeholder="${placeholder}" value="${value}" visible=${visible} required=${required}`);
+        
+        // Try to fill it if it's visible and not already filled
+        if (visible && !value && name) {
+          console.log(`  Attempting to fill input ${i+1} (${name})...`);
           try {
-            const element = elements.nth(i);
-            const tagName = await element.evaluate(el => el.tagName);
-            const dataName = await element.getAttribute('data-name');
-            const name = await element.getAttribute('name');
-            const placeholder = await element.getAttribute('placeholder');
-            const ariaLabel = await element.getAttribute('aria-label');
-            const text = await element.textContent();
-            
-            console.log(`  Element ${i+1}: ${tagName} - data-name="${dataName}" name="${name}" placeholder="${placeholder}" aria-label="${ariaLabel}" text="${text?.substring(0, 50)}"`);
-          } catch (e) {
-            // Skip elements that can't be inspected
+            await input.clear();
+            await input.fill('TestValue');
+            const newValue = await input.inputValue();
+            console.log(`  Successfully filled: "${newValue}"`);
+            await sfHelper.takeScreenshot(`input-${i+1}-filled`);
+          } catch (fillError) {
+            console.log(`  Failed to fill: ${fillError.message}`);
           }
         }
+      } catch (e) {
+        console.log(`Input ${i+1}: Error inspecting - ${e.message}`);
       }
     }
     
-    console.log('Found form elements:', foundElements);
-    await sfHelper.takeScreenshot('form-elements-catalog');
+    await sfHelper.takeScreenshot('all-inputs-tested');
     
     // Now try to interact with specific elements
     console.log('🎯 Attempting to interact with form elements...');
@@ -110,10 +110,10 @@ test.describe('Recalculate Rollup Screen', () => {
       }
     }
     
-    // Look for any input fields
-    const allInputs = page.locator('lightning-input input, input[type="text"], input[type="email"], textarea');
-    const inputCount = await allInputs.count();
-    console.log(`Found ${inputCount} input fields`);
+    // Look for any lightning input fields
+    const allLightningInputs = page.locator('lightning-input input, input[type="text"], input[type="email"], textarea');
+    const lightningInputCount = await allLightningInputs.count();
+    console.log(`Found ${lightningInputCount} lightning input fields`);
     
     // Look for any buttons
     const allButtons = page.locator('button, lightning-button button');

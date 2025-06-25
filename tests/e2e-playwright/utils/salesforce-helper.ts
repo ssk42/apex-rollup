@@ -610,6 +610,42 @@ export class SalesforceHelper {
     console.log('Executing cleanup script...');
   }
 
+  /**
+   * Query a specific record and return its field values
+   */
+  async queryRecord(sObjectType: string, recordId: string, fields: string[]): Promise<any> {
+    console.log(`🔍 Querying ${sObjectType} record ${recordId} for fields: ${fields.join(', ')}`);
+    
+    try {
+      const fieldsList = fields.join(', ');
+      const query = `SELECT ${fieldsList} FROM ${sObjectType} WHERE Id = '${recordId}'`;
+      
+      const result = require('child_process').execSync(
+        `sf data query --query "${query}" --target-org apex-rollup-scratch-org --json`,
+        {
+          encoding: 'utf8',
+          timeout: 30000,
+          env: { ...process.env, FORCE_COLOR: '0' }
+        }
+      );
+      
+      const cleanResult = result.replace(/\\u001b\\[[0-9;]*m/g, '');
+      const queryData = JSON.parse(cleanResult);
+      
+      if (queryData.status === 0 && queryData.result.records.length > 0) {
+        const record = queryData.result.records[0];
+        console.log(`✅ Found record with values:`, record);
+        return record;
+      } else {
+        throw new Error(`No records found for ${sObjectType} with Id ${recordId}`);
+      }
+      
+    } catch (error) {
+      console.log(`❌ Query failed: ${error.message}`);
+      throw error;
+    }
+  }
+
   private generateDeleteScript(recordIds: string[]): string {
     return `
       List<Id> recordIds = new List<Id>{${recordIds.map(id => `'${id}'`).join(', ')}};

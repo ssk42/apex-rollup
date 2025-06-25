@@ -38,6 +38,9 @@ export default defineConfig({
     
     /* Navigation timeout */
     navigationTimeout: 60000,
+    
+    /* Force headed mode for debugging */
+    headless: false,
   },
 
   /* Configure projects for major browsers */

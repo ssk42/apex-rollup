@@ -217,4 +217,301 @@ export class TestDataFactory {
   static getRandomStage(): string {
     return this.TEST_VALUES.STAGE_NAMES[Math.floor(Math.random() * this.TEST_VALUES.STAGE_NAMES.length)];
   }
+
+  // ========================================
+  // ROLLUP OPERATION SPECIFIC TEST DATA
+  // ========================================
+
+  /**
+   * Create data set for SUM operation testing
+   * Account.AnnualRevenue = SUM(Opportunity.Amount)
+   */
+  async createSumTestData(): Promise<{
+    account: TestRecord;
+    opportunities: TestRecord[];
+    expectedResult: number;
+  }> {
+    const amounts = [1000, 2000, 1500]; // Expected sum: 4500
+    const { account, opportunities } = await this.createAccountWithOpportunities(3, amounts);
+    
+    return {
+      account,
+      opportunities,
+      expectedResult: amounts.reduce((sum, amount) => sum + amount, 0)
+    };
+  }
+
+  /**
+   * Create data set for AVERAGE operation testing
+   */
+  async createAverageTestData(): Promise<{
+    account: TestRecord;
+    opportunities: TestRecord[];
+    expectedResult: number;
+  }> {
+    const amounts = [1000, 2000, 3000]; // Expected average: 2000
+    const { account, opportunities } = await this.createAccountWithOpportunities(3, amounts);
+    
+    return {
+      account,
+      opportunities,
+      expectedResult: amounts.reduce((sum, amount) => sum + amount, 0) / amounts.length
+    };
+  }
+
+  /**
+   * Create data set for COUNT operation testing
+   */
+  async createCountTestData(): Promise<{
+    account: TestRecord;
+    opportunities: TestRecord[];
+    expectedResult: number;
+  }> {
+    const amounts = [1000, 2000, 1500];
+    const { account, opportunities } = await this.createAccountWithOpportunities(3, amounts);
+    
+    return {
+      account,
+      opportunities,
+      expectedResult: 3 // Count of non-null Amount fields
+    };
+  }
+
+  /**
+   * Create data set for COUNT_DISTINCT operation testing
+   */
+  async createCountDistinctTestData(): Promise<{
+    account: TestRecord;
+    opportunities: TestRecord[];
+    expectedResult: number;
+  }> {
+    const amounts = [1000, 2000, 1000, 1500, 2000]; // 3 distinct values: 1000, 1500, 2000
+    const { account, opportunities } = await this.createAccountWithOpportunities(5, amounts);
+    
+    return {
+      account,
+      opportunities,
+      expectedResult: 3 // Count of distinct Amount values
+    };
+  }
+
+  /**
+   * Create data set for MAX operation testing
+   */
+  async createMaxTestData(): Promise<{
+    account: TestRecord;
+    opportunities: TestRecord[];
+    expectedResult: number;
+  }> {
+    const amounts = [1000, 3500, 2000, 1500]; // Max: 3500
+    const { account, opportunities } = await this.createAccountWithOpportunities(4, amounts);
+    
+    return {
+      account,
+      opportunities,
+      expectedResult: Math.max(...amounts)
+    };
+  }
+
+  /**
+   * Create data set for MIN operation testing
+   */
+  async createMinTestData(): Promise<{
+    account: TestRecord;
+    opportunities: TestRecord[];
+    expectedResult: number;
+  }> {
+    const amounts = [1000, 500, 2000, 1500]; // Min: 500
+    const { account, opportunities } = await this.createAccountWithOpportunities(4, amounts);
+    
+    return {
+      account,
+      opportunities,
+      expectedResult: Math.min(...amounts)
+    };
+  }
+
+  /**
+   * Create data set for CONCAT operation testing
+   */
+  async createConcatTestData(): Promise<{
+    account: TestRecord;
+    opportunities: TestRecord[];
+    expectedResult: string;
+  }> {
+    const oppNames = ['Alpha Deal', 'Beta Deal', 'Gamma Deal'];
+    const account = await this.createTestAccount();
+    const opportunities: TestRecord[] = [];
+
+    for (let i = 0; i < oppNames.length; i++) {
+      const opp = await this.createTestOpportunity(account.Id!, {
+        Name: oppNames[i],
+        Amount: (i + 1) * 1000
+      });
+      opportunities.push(opp);
+    }
+    
+    return {
+      account,
+      opportunities,
+      expectedResult: oppNames.join(', ') // "Alpha Deal, Beta Deal, Gamma Deal"
+    };
+  }
+
+  /**
+   * Create data set for CONCAT_DISTINCT operation testing
+   */
+  async createConcatDistinctTestData(): Promise<{
+    account: TestRecord;
+    opportunities: TestRecord[];
+    expectedResult: string;
+  }> {
+    const oppNames = ['Alpha Deal', 'Beta Deal', 'Alpha Deal', 'Gamma Deal']; // Duplicates
+    const account = await this.createTestAccount();
+    const opportunities: TestRecord[] = [];
+
+    for (let i = 0; i < oppNames.length; i++) {
+      const opp = await this.createTestOpportunity(account.Id!, {
+        Name: oppNames[i],
+        Amount: (i + 1) * 1000
+      });
+      opportunities.push(opp);
+    }
+    
+    const distinctNames = [...new Set(oppNames)];
+    return {
+      account,
+      opportunities,
+      expectedResult: distinctNames.join(', ') // "Alpha Deal, Beta Deal, Gamma Deal"
+    };
+  }
+
+  /**
+   * Create data set for FIRST/LAST operation testing
+   * Uses CloseDate for ordering
+   */
+  async createFirstLastTestData(): Promise<{
+    account: TestRecord;
+    opportunities: TestRecord[];
+    expectedFirst: string;
+    expectedLast: string;
+  }> {
+    const oppData = [
+      { name: 'First Deal', closeDate: '2024-01-15', amount: 1000 },
+      { name: 'Middle Deal', closeDate: '2024-06-15', amount: 2000 },
+      { name: 'Last Deal', closeDate: '2024-12-15', amount: 1500 }
+    ];
+
+    const account = await this.createTestAccount();
+    const opportunities: TestRecord[] = [];
+
+    for (const data of oppData) {
+      const opp = await this.createTestOpportunity(account.Id!, {
+        Name: data.name,
+        CloseDate: data.closeDate,
+        Amount: data.amount
+      });
+      opportunities.push(opp);
+    }
+    
+    return {
+      account,
+      opportunities,
+      expectedFirst: 'First Deal', // Earliest CloseDate
+      expectedLast: 'Last Deal'    // Latest CloseDate
+    };
+  }
+
+  /**
+   * Create data set for MOST operation testing
+   */
+  async createMostTestData(): Promise<{
+    account: TestRecord;
+    opportunities: TestRecord[];
+    expectedResult: string;
+  }> {
+    const stages = ['Prospecting', 'Qualification', 'Prospecting', 'Prospecting', 'Qualification'];
+    // 'Prospecting' appears 3 times (most frequent)
+    
+    const account = await this.createTestAccount();
+    const opportunities: TestRecord[] = [];
+
+    for (let i = 0; i < stages.length; i++) {
+      const opp = await this.createTestOpportunity(account.Id!, {
+        Name: `Deal ${i + 1}`,
+        StageName: stages[i],
+        Amount: (i + 1) * 1000
+      });
+      opportunities.push(opp);
+    }
+    
+    return {
+      account,
+      opportunities,
+      expectedResult: 'Prospecting' // Most frequent StageName
+    };
+  }
+
+  /**
+   * Create data set for ALL operation testing
+   * Tests if ALL opportunities have Amount > 500
+   */
+  async createAllTestData(): Promise<{
+    account: TestRecord;
+    opportunities: TestRecord[];
+    expectedResult: boolean;
+    testCondition: string;
+  }> {
+    const amounts = [1000, 2000, 1500]; // All > 500
+    const { account, opportunities } = await this.createAccountWithOpportunities(3, amounts);
+    
+    return {
+      account,
+      opportunities,
+      expectedResult: true, // ALL amounts > 500
+      testCondition: 'Amount > 500'
+    };
+  }
+
+  /**
+   * Create data set for SOME operation testing
+   * Tests if SOME opportunities have Amount > 1800
+   */
+  async createSomeTestData(): Promise<{
+    account: TestRecord;
+    opportunities: TestRecord[];
+    expectedResult: boolean;
+    testCondition: string;
+  }> {
+    const amounts = [1000, 2000, 1500]; // 2000 > 1800, so SOME is true
+    const { account, opportunities } = await this.createAccountWithOpportunities(3, amounts);
+    
+    return {
+      account,
+      opportunities,
+      expectedResult: true, // SOME amounts > 1800
+      testCondition: 'Amount > 1800'
+    };
+  }
+
+  /**
+   * Create data set for NONE operation testing
+   * Tests if NONE opportunities have Amount > 5000
+   */
+  async createNoneTestData(): Promise<{
+    account: TestRecord;
+    opportunities: TestRecord[];
+    expectedResult: boolean;
+    testCondition: string;
+  }> {
+    const amounts = [1000, 2000, 1500]; // None > 5000
+    const { account, opportunities } = await this.createAccountWithOpportunities(3, amounts);
+    
+    return {
+      account,
+      opportunities,
+      expectedResult: true, // NONE amounts > 5000
+      testCondition: 'Amount > 5000'
+    };
+  }
 }
