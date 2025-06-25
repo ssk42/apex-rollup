@@ -124,19 +124,48 @@ export class SalesforceHelper {
   }
 
   // Navigation Methods
-  async navigateToApp(appName: string): Promise<void> {
-    console.log(`🧭 Navigating to ${appName} app...`);
+  async navigateToApp(appName: string, tabName?: string): Promise<void> {
+    console.log(`🧭 Navigating to ${appName} app${tabName ? ` (${tabName} tab)` : ''}...`);
     
     try {
+      // Check if we're in setup area and navigate to regular Lightning first
+      const currentUrl = this.page.url();
+      if (currentUrl.includes('lightning/setup') || currentUrl.includes('salesforce-setup.com')) {
+        console.log('🔄 Currently in Setup area, navigating to regular Lightning...');
+        // Try to navigate to the app using the same domain but different path
+        const url = new URL(currentUrl);
+        const lightningUrl = `${url.protocol}//${url.hostname}/lightning/app/c__Rollup`;
+        console.log(`🔄 Navigating directly to app: ${lightningUrl}`);
+        try {
+          await this.page.goto(lightningUrl, { timeout: 30000 });
+          await this.page.waitForLoadState('domcontentloaded', { timeout: 15000 }); // Shorter timeout
+          await this.page.waitForTimeout(3000); // Reduced Lightning load time
+          
+          // If navigating to specific tab, do it now
+          if (tabName) {
+            await this.navigateToTab(tabName);
+          }
+          
+          console.log(`✅ Successfully navigated to ${appName}${tabName ? ` (${tabName} tab)` : ''}`);
+          return; // Skip the app launcher navigation
+        } catch (directNavError) {
+          console.log(`⚠️  Direct navigation failed: ${directNavError.message}, trying app launcher...`);
+          // Fall through to app launcher method
+        }
+      }
+      
       // Open app launcher
-      await this.page.click('[data-aura-class="oneAppLauncher"] button');
-      await this.page.waitForSelector('[data-aura-class="appTileTitle"]');
+      await this.page.click('[data-aura-class="oneAppLauncher"] button, .slds-icon-waffle_container button');
+      await this.page.waitForSelector('[data-aura-class="appTileTitle"], .slds-app-launcher__tile-title');
       
       // Search for and click the app
-      await this.page.fill('input[placeholder="Search apps and items..."]', appName);
-      await this.page.waitForTimeout(1000); // Wait for search results
+      const searchInput = this.page.locator('input[placeholder*="Search"], input[type="search"]');
+      if (await searchInput.isVisible()) {
+        await searchInput.fill(appName);
+        await this.page.waitForTimeout(1000); // Wait for search results
+      }
       
-      const appSelector = `[data-aura-class="appTileTitle"]:has-text("${appName}")`;
+      const appSelector = `[data-aura-class="appTileTitle"]:has-text("${appName}"), .slds-app-launcher__tile-title:has-text("${appName}")`;
       await this.page.waitForSelector(appSelector);
       await this.page.click(appSelector);
       
@@ -144,11 +173,54 @@ export class SalesforceHelper {
       await this.page.waitForURL('**/lightning/**');
       await this.page.waitForLoadState('networkidle');
       
-      console.log(`✅ Successfully navigated to ${appName}`);
+      // Navigate to specific tab if requested
+      if (tabName) {
+        await this.navigateToTab(tabName);
+      }
+      
+      console.log(`✅ Successfully navigated to ${appName}${tabName ? ` (${tabName} tab)` : ''}`);
       
     } catch (error) {
       await this.takeScreenshot(`navigation-${appName}-failure`);
       throw new Error(`Failed to navigate to ${appName}: ${error.message}`);
+    }
+  }
+
+  async navigateToTab(tabName: string): Promise<void> {
+    console.log(`📋 Navigating to ${tabName} tab...`);
+    
+    try {
+      // Wait a moment for the app to fully load
+      await this.page.waitForTimeout(2000);
+      
+      // Look for the tab with various possible selectors
+      const tabSelectors = [
+        `a[title="${tabName}"]`,
+        `one-app-nav-bar-item-root:has-text("${tabName}")`,
+        `.slds-tabs_default__nav a:has-text("${tabName}")`,
+        `[role="tab"]:has-text("${tabName}")`,
+        `lightning-tab:has-text("${tabName}")`
+      ];
+      
+      let tabFound = false;
+      for (const selector of tabSelectors) {
+        const tab = this.page.locator(selector);
+        if (await tab.isVisible()) {
+          await tab.click();
+          await this.page.waitForLoadState('networkidle');
+          tabFound = true;
+          console.log(`✅ Successfully navigated to ${tabName} tab using selector: ${selector}`);
+          break;
+        }
+      }
+      
+      if (!tabFound) {
+        throw new Error(`Tab "${tabName}" not found with any of the attempted selectors`);
+      }
+      
+    } catch (error) {
+      await this.takeScreenshot(`tab-navigation-${tabName}-failure`);
+      throw new Error(`Failed to navigate to tab ${tabName}: ${error.message}`);
     }
   }
 
