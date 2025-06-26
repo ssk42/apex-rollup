@@ -155,6 +155,7 @@ export class SalesforceHelper {
       }
       
       // Open app launcher
+      await this.page.waitForSelector('[data-aura-class="oneAppLauncher"] button, .slds-icon-waffle_container button', { timeout: 60000 });
       await this.page.click('[data-aura-class="oneAppLauncher"] button, .slds-icon-waffle_container button');
       await this.page.waitForSelector('[data-aura-class="appTileTitle"], .slds-app-launcher__tile-title');
       
@@ -311,22 +312,39 @@ export class SalesforceHelper {
   async getRecord(objectType: string, recordId: string, fields: string[]): Promise<TestRecord> {
     console.log(`📖 Reading ${objectType} record ${recordId}...`);
     
-    await this.navigateToRecord(objectType, recordId);
-    
-    const record: TestRecord = { Id: recordId };
-    
-    // Extract field values from the record page
-    for (const field of fields) {
-      try {
-        const fieldValue = await this.getFieldValue(field);
-        record[field] = fieldValue;
-      } catch (error) {
-        console.warn(`⚠️  Could not read field ${field}: ${error.message}`);
-        record[field] = null;
+    try {
+      // Use Salesforce CLI to query record - much more reliable than UI
+      const fieldList = ['Id', ...fields].join(',');
+      const command = `sf data query --query "SELECT ${fieldList} FROM ${objectType} WHERE Id = '${recordId}'" --target-org apex-rollup-scratch-org --json`;
+      
+      console.log(`Executing: ${command}`);
+      
+      const result = require('child_process').execSync(command, { 
+        encoding: 'utf8', 
+        timeout: 30000,
+        env: { ...process.env, FORCE_COLOR: '0' }
+      });
+      
+      // Clean up any ANSI color codes
+      const cleanResult = result.replace(/\u001b\[[0-9;]*m/g, '');
+      const queryData = JSON.parse(cleanResult);
+      
+      if (queryData.status !== 0) {
+        throw new Error(`CLI query failed: ${queryData.message}`);
       }
+      
+      if (queryData.result?.records?.length > 0) {
+        const record = queryData.result.records[0];
+        console.log(`✅ Retrieved ${objectType} record:`, record);
+        return record;
+      } else {
+        throw new Error(`No ${objectType} record found with Id ${recordId}`);
+      }
+      
+    } catch (error) {
+      console.error(`❌ Failed to read ${objectType} record ${recordId}:`, error.message);
+      throw new Error(`Failed to read ${objectType} record: ${error.message}`);
     }
-    
-    return record;
   }
 
   async updateRecord(objectType: string, recordId: string, data: Record<string, any>): Promise<void> {
