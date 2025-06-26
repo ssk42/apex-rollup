@@ -12,7 +12,7 @@
     </values>
     <values>
         <field>CalcItem__c</field>
-        <value xsi:nil="true"/>
+        <value xsi:type="xsd:string">Application__c</value>
     </values>
     <values>
         <field>ChangedFieldsOnCalcItem__c</field>
@@ -55,6 +55,14 @@
         <value xsi:nil="true"/>
     </values>
     <values>
+        <field>IsDisabled__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>IsDistinct__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
         <field>IsFullRecordSet__c</field>
         <value xsi:type="xsd:boolean">false</value>
     </values>
@@ -76,7 +84,7 @@
     </values>
     <values>
         <field>LookupFieldOnCalcItem__c</field>
-        <value xsi:nil="true"/>
+        <value xsi:type="xsd:string">ParentApplication__c</value>
     </values>
     <values>
         <field>LookupFieldOnLookupObjectText__c</field>
@@ -84,7 +92,7 @@
     </values>
     <values>
         <field>LookupFieldOnLookupObject__c</field>
-        <value xsi:nil="true"/>
+        <value xsi:type="xsd:string">Id</value>
     </values>
     <values>
         <field>LookupObjectText__c</field>
@@ -92,7 +100,7 @@
     </values>
     <values>
         <field>LookupObject__c</field>
-        <value xsi:nil="true"/>
+        <value xsi:type="xsd:string">ParentApplication__c</value>
     </values>
     <values>
         <field>OneToManyGrandparentFields__c</field>
@@ -112,7 +120,7 @@
     </values>
     <values>
         <field>RollupFieldOnCalcItem__c</field>
-        <value xsi:nil="true"/>
+        <value xsi:type="xsd:string">Picklist__c</value>
     </values>
     <values>
         <field>RollupFieldOnLookupObjectText__c</field>
@@ -120,6 +128,10 @@
     </values>
     <values>
         <field>RollupFieldOnLookupObject__c</field>
+        <value xsi:type="xsd:string">Name</value>
+    </values>
+    <values>
+        <field>RollupGrouping__c</field>
         <value xsi:nil="true"/>
     </values>
     <values>
@@ -141,6 +153,10 @@
     <values>
         <field>SplitConcatDelimiterOnCalcItem__c</field>
         <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>UltimateParentLookupText__c</field>
+        <value xsi:nil="true"/>
     </values>
     <values>
         <field>UltimateParentLookup__c</field>

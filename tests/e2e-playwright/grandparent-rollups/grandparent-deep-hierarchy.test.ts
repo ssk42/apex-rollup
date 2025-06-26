@@ -37,8 +37,25 @@ test.describe('Deep Grandparent Rollup Testing: 4+ Level Hierarchies', () => {
     console.log(`Created deep hierarchy: Account ${account.Id} → Contact ${contact.Id} → ${opportunities.length} Opportunities`);
     console.log('Expected SUM result: 40000 (15000 + 25000)');
 
-    // Navigate to Rollup app using the working approach
-    await sfHelper.navigateToApp('Rollup', 'Recalculate Rollup');
+    // Navigate directly to Rollup app (setup domain is correct for System Admin)
+    console.log('🧭 Navigating directly to Rollup app...');
+    const currentUrl = page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    const rollupUrl = `${baseUrl}/lightning/app/c__Rollup`;
+    
+    await page.goto(rollupUrl);
+    await page.waitForLoadState('domcontentloaded');
+    
+    // Navigate to Recalculate Rollup tab if needed
+    try {
+      const recalcTab = page.locator('a[title="Recalculate Rollup"]');
+      if (await recalcTab.isVisible({ timeout: 5000 })) {
+        await recalcTab.click();
+        console.log('✅ Navigated to Recalculate Rollup tab');
+      }
+    } catch (e) {
+      console.log('⏳ Recalculate Rollup tab not needed or already active');
+    }
     
     // Wait for the rollup force recalculation component to load
     console.log('⏳ Waiting for recalculation interface to load...');
@@ -224,8 +241,25 @@ test.describe('Deep Grandparent Rollup Testing: 4+ Level Hierarchies', () => {
 
     console.log(`Created test account ${account.Id} for relationship depth testing`);
 
-    // Navigate to Rollup app using the working approach
-    await sfHelper.navigateToApp('Rollup', 'Recalculate Rollup');
+    // Navigate directly to Rollup app (setup domain is correct for System Admin)
+    console.log('🧭 Navigating directly to Rollup app...');
+    const currentUrl = page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    const rollupUrl = `${baseUrl}/lightning/app/c__Rollup`;
+    
+    await page.goto(rollupUrl);
+    await page.waitForLoadState('domcontentloaded');
+    
+    // Navigate to Recalculate Rollup tab if needed
+    try {
+      const recalcTab = page.locator('a[title="Recalculate Rollup"]');
+      if (await recalcTab.isVisible({ timeout: 5000 })) {
+        await recalcTab.click();
+        console.log('✅ Navigated to Recalculate Rollup tab');
+      }
+    } catch (e) {
+      console.log('⏳ Recalculate Rollup tab not needed or already active');
+    }
     
     // Wait for the rollup force recalculation component to load
     console.log('⏳ Waiting for recalculation interface to load...');

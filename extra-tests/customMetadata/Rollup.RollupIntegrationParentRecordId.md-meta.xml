@@ -1,9 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<CustomMetadata
-  xmlns="http://soap.sforce.com/2006/04/metadata"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
->
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <label>Rollup Integration: REFRESH</label>
     <protected>false</protected>
     <values>
@@ -16,47 +12,51 @@
     </values>
     <values>
         <field>CalcItem__c</field>
-        <value xsi:nil="true" />
+        <value xsi:type="xsd:string">ContactPointAddress</value>
     </values>
     <values>
         <field>ChangedFieldsOnCalcItem__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
     </values>
     <values>
         <field>ConcatDelimiter__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
     </values>
     <values>
         <field>CurrencyFieldMapping__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
     </values>
     <values>
         <field>Description__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
     </values>
     <values>
         <field>FullRecalculationDefaultNumberValue__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
     </values>
     <values>
         <field>FullRecalculationDefaultStringValue__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
     </values>
     <values>
         <field>GrandparentRelationshipFieldPath__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
     </values>
     <values>
         <field>GroupByFields__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
     </values>
     <values>
         <field>GroupByRowEndDelimiter__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
     </values>
     <values>
         <field>GroupByRowStartDelimiter__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>IsDisabled__c</field>
+        <value xsi:type="xsd:boolean">false</value>
     </values>
     <values>
         <field>IsDistinct__c</field>
@@ -76,7 +76,7 @@
     </values>
     <values>
         <field>LimitAmount__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
     </values>
     <values>
         <field>LookupFieldOnCalcItemText__c</field>
@@ -84,7 +84,7 @@
     </values>
     <values>
         <field>LookupFieldOnCalcItem__c</field>
-        <value xsi:nil="true" />
+        <value xsi:type="xsd:string">ParentId</value>
     </values>
     <values>
         <field>LookupFieldOnLookupObjectText__c</field>
@@ -92,7 +92,7 @@
     </values>
     <values>
         <field>LookupFieldOnLookupObject__c</field>
-        <value xsi:nil="true" />
+        <value xsi:type="xsd:string">Id</value>
     </values>
     <values>
         <field>LookupObjectText__c</field>
@@ -100,15 +100,15 @@
     </values>
     <values>
         <field>LookupObject__c</field>
-        <value xsi:nil="true" />
+        <value xsi:type="xsd:string">Account</value>
     </values>
     <values>
         <field>OneToManyGrandparentFields__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
     </values>
     <values>
         <field>OrderByFirstLast__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
     </values>
     <values>
         <field>RollupControl__c</field>
@@ -120,7 +120,7 @@
     </values>
     <values>
         <field>RollupFieldOnCalcItem__c</field>
-        <value xsi:nil="true" />
+        <value xsi:type="xsd:string">PreferenceRank</value>
     </values>
     <values>
         <field>RollupFieldOnLookupObjectText__c</field>
@@ -128,11 +128,11 @@
     </values>
     <values>
         <field>RollupFieldOnLookupObject__c</field>
-        <value xsi:nil="true" />
+        <value xsi:type="xsd:string">AnnualRevenue</value>
     </values>
     <values>
         <field>RollupGrouping__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
     </values>
     <values>
         <field>RollupOperation__c</field>
@@ -144,7 +144,7 @@
     </values>
     <values>
         <field>SharingMode__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
     </values>
     <values>
         <field>ShouldRunWithoutCustomSettingEnabled__c</field>
@@ -155,7 +155,11 @@
         <value xsi:type="xsd:boolean">false</value>
     </values>
     <values>
+        <field>UltimateParentLookupText__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
         <field>UltimateParentLookup__c</field>
-        <value xsi:nil="true" />
+        <value xsi:nil="true"/>
     </values>
 </CustomMetadata>

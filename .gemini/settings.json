@@ -1,10 +1,8 @@
 {
   "mcpServers": {
-    "servers": [
-      {
-        "name": "default",
-        "url": "http://localhost:8080"
-      }
-    ]
+    "puppeteer": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
+    }
   }
 }

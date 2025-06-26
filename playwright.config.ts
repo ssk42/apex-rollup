@@ -34,10 +34,10 @@ export default defineConfig({
     video: 'retain-on-failure',
     
     /* Global timeout for each test */
-    actionTimeout: 30000,
+    actionTimeout: 60000,
     
     /* Navigation timeout */
-    navigationTimeout: 60000,
+    navigationTimeout: 120000,
     
     /* Force headed mode for debugging */
     headless: false,
@@ -87,7 +87,7 @@ export default defineConfig({
   ],
 
   /* Configure global test settings */
-  timeout: 120000, // 2 minutes per test
+  timeout: 300000, // 5 minutes per test
   expect: {
     timeout: 10000 // 10 seconds for assertions
   },

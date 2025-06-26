@@ -21,8 +21,25 @@ test.describe('Core Rollup Operations E2E Tests', () => {
     console.log(`Created test data: Account ${testData.account.Id} with ${testData.opportunities.length} opportunities`);
     console.log(`Expected SUM result: ${testData.expectedResult}`);
     
-    // Navigate to Rollup app using the working approach
-    await sfHelper.navigateToApp('Rollup', 'Recalculate Rollup');
+    // Navigate directly to Rollup app (setup domain is correct for System Admin)
+    console.log('🧭 Navigating directly to Rollup app...');
+    const currentUrl = page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    const rollupUrl = `${baseUrl}/lightning/app/c__Rollup`;
+    
+    await page.goto(rollupUrl);
+    await page.waitForLoadState('domcontentloaded');
+    
+    // Navigate to Recalculate Rollup tab if needed
+    try {
+      const recalcTab = page.locator('a[title="Recalculate Rollup"]');
+      if (await recalcTab.isVisible({ timeout: 5000 })) {
+        await recalcTab.click();
+        console.log('✅ Navigated to Recalculate Rollup tab');
+      }
+    } catch (e) {
+      console.log('⏳ Recalculate Rollup tab not needed or already active');
+    }
     
     // Wait for the rollup force recalculation component to load
     console.log('⏳ Waiting for recalculation interface to load...');
@@ -122,8 +139,25 @@ test.describe('Core Rollup Operations E2E Tests', () => {
     console.log(`Created test data: Account ${testData.account.Id} with ${testData.opportunities.length} opportunities`);
     console.log(`Expected COUNT result: ${testData.expectedResult}`);
     
-    // Navigate to Rollup app using the working approach
-    await sfHelper.navigateToApp('Rollup', 'Recalculate Rollup');
+    // Navigate directly to Rollup app (setup domain is correct for System Admin)
+    console.log('🧭 Navigating directly to Rollup app...');
+    const currentUrl = page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    const rollupUrl = `${baseUrl}/lightning/app/c__Rollup`;
+    
+    await page.goto(rollupUrl);
+    await page.waitForLoadState('domcontentloaded');
+    
+    // Navigate to Recalculate Rollup tab if needed
+    try {
+      const recalcTab = page.locator('a[title="Recalculate Rollup"]');
+      if (await recalcTab.isVisible({ timeout: 5000 })) {
+        await recalcTab.click();
+        console.log('✅ Navigated to Recalculate Rollup tab');
+      }
+    } catch (e) {
+      console.log('⏳ Recalculate Rollup tab not needed or already active');
+    }
     
     // Wait for the rollup force recalculation component to load
     console.log('⏳ Waiting for recalculation interface to load...');
@@ -223,8 +257,25 @@ test.describe('Core Rollup Operations E2E Tests', () => {
     console.log(`Created test data: Account ${testData.account.Id} with ${testData.opportunities.length} opportunities`);
     console.log(`Expected AVERAGE result: ${testData.expectedResult}`);
     
-    // Navigate to Rollup app using the working approach
-    await sfHelper.navigateToApp('Rollup', 'Recalculate Rollup');
+    // Navigate directly to Rollup app (setup domain is correct for System Admin)
+    console.log('🧭 Navigating directly to Rollup app...');
+    const currentUrl = page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    const rollupUrl = `${baseUrl}/lightning/app/c__Rollup`;
+    
+    await page.goto(rollupUrl);
+    await page.waitForLoadState('domcontentloaded');
+    
+    // Navigate to Recalculate Rollup tab if needed
+    try {
+      const recalcTab = page.locator('a[title="Recalculate Rollup"]');
+      if (await recalcTab.isVisible({ timeout: 5000 })) {
+        await recalcTab.click();
+        console.log('✅ Navigated to Recalculate Rollup tab');
+      }
+    } catch (e) {
+      console.log('⏳ Recalculate Rollup tab not needed or already active');
+    }
     
     // Wait for the rollup force recalculation component to load
     console.log('⏳ Waiting for recalculation interface to load...');
@@ -324,8 +375,25 @@ test.describe('Core Rollup Operations E2E Tests', () => {
     console.log(`Created test data: Account ${testData.account.Id} with ${testData.opportunities.length} opportunities`);
     console.log(`Expected MIN result: ${testData.expectedResult}`);
     
-    // Navigate to Rollup app using the working approach
-    await sfHelper.navigateToApp('Rollup', 'Recalculate Rollup');
+    // Navigate directly to Rollup app (setup domain is correct for System Admin)
+    console.log('🧭 Navigating directly to Rollup app...');
+    const currentUrl = page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    const rollupUrl = `${baseUrl}/lightning/app/c__Rollup`;
+    
+    await page.goto(rollupUrl);
+    await page.waitForLoadState('domcontentloaded');
+    
+    // Navigate to Recalculate Rollup tab if needed
+    try {
+      const recalcTab = page.locator('a[title="Recalculate Rollup"]');
+      if (await recalcTab.isVisible({ timeout: 5000 })) {
+        await recalcTab.click();
+        console.log('✅ Navigated to Recalculate Rollup tab');
+      }
+    } catch (e) {
+      console.log('⏳ Recalculate Rollup tab not needed or already active');
+    }
     
     // Wait for the rollup force recalculation component to load
     console.log('⏳ Waiting for recalculation interface to load...');
@@ -425,8 +493,25 @@ test.describe('Core Rollup Operations E2E Tests', () => {
     console.log(`Created test data: Account ${testData.account.Id} with ${testData.opportunities.length} opportunities`);
     console.log(`Expected MAX result: ${testData.expectedResult}`);
     
-    // Navigate to Rollup app using the working approach
-    await sfHelper.navigateToApp('Rollup', 'Recalculate Rollup');
+    // Navigate directly to Rollup app (setup domain is correct for System Admin)
+    console.log('🧭 Navigating directly to Rollup app...');
+    const currentUrl = page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    const rollupUrl = `${baseUrl}/lightning/app/c__Rollup`;
+    
+    await page.goto(rollupUrl);
+    await page.waitForLoadState('domcontentloaded');
+    
+    // Navigate to Recalculate Rollup tab if needed
+    try {
+      const recalcTab = page.locator('a[title="Recalculate Rollup"]');
+      if (await recalcTab.isVisible({ timeout: 5000 })) {
+        await recalcTab.click();
+        console.log('✅ Navigated to Recalculate Rollup tab');
+      }
+    } catch (e) {
+      console.log('⏳ Recalculate Rollup tab not needed or already active');
+    }
     
     // Wait for the rollup force recalculation component to load
     console.log('⏳ Waiting for recalculation interface to load...');
@@ -526,8 +611,25 @@ test.describe('Core Rollup Operations E2E Tests', () => {
     console.log(`Created test data: Account ${testData.account.Id} with ${testData.opportunities.length} opportunities`);
     console.log(`Expected CONCAT result: "${testData.expectedResult}"`);
     
-    // Navigate to Rollup app using the working approach
-    await sfHelper.navigateToApp('Rollup', 'Recalculate Rollup');
+    // Navigate directly to Rollup app (setup domain is correct for System Admin)
+    console.log('🧭 Navigating directly to Rollup app...');
+    const currentUrl = page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    const rollupUrl = `${baseUrl}/lightning/app/c__Rollup`;
+    
+    await page.goto(rollupUrl);
+    await page.waitForLoadState('domcontentloaded');
+    
+    // Navigate to Recalculate Rollup tab if needed
+    try {
+      const recalcTab = page.locator('a[title="Recalculate Rollup"]');
+      if (await recalcTab.isVisible({ timeout: 5000 })) {
+        await recalcTab.click();
+        console.log('✅ Navigated to Recalculate Rollup tab');
+      }
+    } catch (e) {
+      console.log('⏳ Recalculate Rollup tab not needed or already active');
+    }
     
     // Wait for the rollup force recalculation component to load
     console.log('⏳ Waiting for recalculation interface to load...');
@@ -646,8 +748,25 @@ test.describe('Core Rollup Operations E2E Tests', () => {
     console.log(`Created account ${account.Id} with ${opportunities.length} opportunities`);
     console.log('Expected SUM result: 2500 (1000 + 1500, excluding 2000 + 3000 from other stages)');
     
-    // Navigate to Rollup app using the working approach
-    await sfHelper.navigateToApp('Rollup', 'Recalculate Rollup');
+    // Navigate directly to Rollup app (setup domain is correct for System Admin)
+    console.log('🧭 Navigating directly to Rollup app...');
+    const currentUrl = page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    const rollupUrl = `${baseUrl}/lightning/app/c__Rollup`;
+    
+    await page.goto(rollupUrl);
+    await page.waitForLoadState('domcontentloaded');
+    
+    // Navigate to Recalculate Rollup tab if needed
+    try {
+      const recalcTab = page.locator('a[title="Recalculate Rollup"]');
+      if (await recalcTab.isVisible({ timeout: 5000 })) {
+        await recalcTab.click();
+        console.log('✅ Navigated to Recalculate Rollup tab');
+      }
+    } catch (e) {
+      console.log('⏳ Recalculate Rollup tab not needed or already active');
+    }
     
     // Wait for the rollup force recalculation component to load
     console.log('⏳ Waiting for recalculation interface to load...');

@@ -8,6 +8,7 @@ import {
   ScreenshotOptions,
   TestEnvironmentInfo
 } from '../types/salesforce';
+import { RollupCMDT } from '../types/rollup-cmdt';
 
 /**
  * Comprehensive Salesforce Helper for E2E Testing
@@ -683,5 +684,57 @@ export class SalesforceHelper {
         System.debug('Deleted ' + recordsToDelete.size() + ' test records');
       }
     `;
+  }
+
+  async createRollupCMDT(rollup: RollupCMDT): Promise<void> {
+    console.log(`Creating Rollup__mdt record: ${rollup.DeveloperName}`);
+    const fieldValues = Object.entries(rollup)
+      .map(([field, value]) => `${field}=${JSON.stringify(value)}`)
+      .join(' ');
+
+    const command = `sf data create record --sobject Rollup__mdt --values "${fieldValues}" --target-org apex-rollup-scratch-org --json`;
+    
+    try {
+      const result = require('child_process').execSync(command, {
+        encoding: 'utf8',
+        timeout: 30000,
+        env: { ...process.env, FORCE_COLOR: '0' }
+      });
+      const createData = JSON.parse(result);
+      if (createData.status !== 0) {
+        throw new Error(`CLI command failed: ${createData.message}`);
+      }
+      console.log(`✅ Created Rollup__mdt: ${rollup.DeveloperName}`);
+    } catch (error) {
+      throw new Error(`Failed to create Rollup__mdt record: ${error.message}`);
+    }
+  }
+
+  async waitForRecordUpdate(
+    objectType: string,
+    recordId: string,
+    expectedValues: Record<string, any>,
+    timeout: number = 30000
+  ): Promise<void> {
+    console.log(`⏳ Waiting for ${objectType} ${recordId} to update...`);
+    const pollInterval = 2000;
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < timeout) {
+      try {
+        const record = await this.getRecord(objectType, recordId, Object.keys(expectedValues));
+        const allMatch = Object.entries(expectedValues).every(([field, value]) => record[field] === value);
+
+        if (allMatch) {
+          console.log(`✅ ${objectType} ${recordId} updated successfully.`);
+          return;
+        }
+      } catch (error) {
+        // Ignore errors during polling
+      }
+      await this.page.waitForTimeout(pollInterval);
+    }
+
+    throw new Error(`Timeout waiting for ${objectType} ${recordId} to update.`);
   }
 }

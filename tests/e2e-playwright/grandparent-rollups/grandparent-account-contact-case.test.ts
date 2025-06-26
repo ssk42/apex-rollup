@@ -38,13 +38,30 @@ test.describe('Grandparent Rollup Testing: Account → Contact → Case', () => 
     console.log(`Created grandparent hierarchy: Account ${account.Id} → Contact ${contact.Id} → ${cases.length} Cases`);
     console.log('Expected COUNT result: 3');
 
-    // Navigate to Rollup app using the working approach
-    await sfHelper.navigateToApp('Rollup', 'Recalculate Rollup');
+    // Navigate directly to Rollup app (setup domain is correct for System Admin)
+    console.log('🧭 Navigating directly to Rollup app...');
+    const currentUrl = page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    const rollupUrl = `${baseUrl}/lightning/app/c__Rollup`;
+    
+    await page.goto(rollupUrl);
+    await page.waitForLoadState('domcontentloaded');
     
     // Wait for the rollup force recalculation component to load
     console.log('⏳ Waiting for recalculation interface to load...');
     const rollupComponent = page.locator('c-rollup-force-recalculation');
     await expect(rollupComponent).toBeVisible({ timeout: 15000 });
+    
+    // Navigate to Recalculate Rollup tab if needed
+    try {
+      const recalcTab = page.locator('a[title="Recalculate Rollup"]');
+      if (await recalcTab.isVisible({ timeout: 5000 })) {
+        await recalcTab.click();
+        console.log('✅ Navigated to Recalculate Rollup tab');
+      }
+    } catch (e) {
+      console.log('⏳ Recalculate Rollup tab not needed or already active');
+    }
     
     await sfHelper.takeScreenshot('grandparent-count-interface-loaded');
     
@@ -117,47 +134,23 @@ test.describe('Grandparent Rollup Testing: Account → Contact → Case', () => 
       await sfHelper.takeScreenshot('grandparent-count-rollup-started');
     }
 
-    // 8. Wait for rollup completion with proper indicators
+    // 8. Wait for rollup completion - UI rollups complete quickly
     console.log('⏳ Waiting for rollup job completion...');
-    let rollupCompleted = false;
-    let attempts = 0;
-    const maxAttempts = 20; // 40 seconds total
+    await page.waitForTimeout(10000); // Wait 10 seconds for UI rollup to complete
     
-    while (!rollupCompleted && attempts < maxAttempts) {
-      await page.waitForTimeout(2000);
-      attempts++;
-      
-      // Look for completion indicators
-      const completionSelectors = [
-        '*:has-text("Rollup Job Status")',
-        '*:has-text("Completed")',
-        '*:has-text("Success")',
-        '*:has-text("Failed")',
-        '*:has-text("Error")'
-      ];
-      
-      for (const selector of completionSelectors) {
-        try {
-          const element = await page.locator(selector).first();
-          if (await element.isVisible()) {
-            const text = await element.textContent();
+    // Look for any completion indicators in the UI
+    try {
+      const statusElements = await page.locator('*:has-text("Status"), *:has-text("Complete"), *:has-text("Success"), *:has-text("Error")').all();
+      if (statusElements.length > 0) {
+        for (const element of statusElements) {
+          const text = await element.textContent();
+          if (text && (text.includes('Complete') || text.includes('Success') || text.includes('Status'))) {
             console.log(`📋 Found status indicator: "${text}"`);
-            rollupCompleted = true;
-            break;
           }
-        } catch (e) {
-          // Continue checking other selectors
         }
       }
-      
-      if (!rollupCompleted) {
-        console.log(`⏳ Still waiting for completion... (attempt ${attempts}/${maxAttempts})`);
-      }
-    }
-    
-    if (!rollupCompleted) {
-      console.log('⚠️ No completion indicator found, assuming async completion');
-      await page.waitForTimeout(5000); // Additional wait for async processing
+    } catch (e) {
+      console.log('⏳ No specific status indicators found, proceeding with validation');
     }
     
     await sfHelper.takeScreenshot('grandparent-count-rollup-completed');
@@ -243,13 +236,30 @@ test.describe('Grandparent Rollup Testing: Account → Contact → Case', () => 
     console.log(`Created grandparent hierarchy: Account ${account.Id} → Contact ${contact.Id} → ${cases.length} Cases`);
     console.log('Expected COUNT result: 2 (2 High priority cases)');
 
-    // Navigate to Rollup app using the working approach
-    await sfHelper.navigateToApp('Rollup', 'Recalculate Rollup');
+    // Navigate directly to Rollup app (no SalesforceHelper)
+    console.log('🧭 Navigating directly to Rollup app...');
+    const currentUrl = page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    const rollupUrl = `${baseUrl}/lightning/app/c__Rollup`;
+    
+    await page.goto(rollupUrl);
+    await page.waitForLoadState('networkidle');
     
     // Wait for the rollup force recalculation component to load
     console.log('⏳ Waiting for recalculation interface to load...');
     const rollupComponent = page.locator('c-rollup-force-recalculation');
     await expect(rollupComponent).toBeVisible({ timeout: 15000 });
+    
+    // Navigate to Recalculate Rollup tab if needed
+    try {
+      const recalcTab = page.locator('a[title="Recalculate Rollup"]');
+      if (await recalcTab.isVisible({ timeout: 5000 })) {
+        await recalcTab.click();
+        console.log('✅ Navigated to Recalculate Rollup tab');
+      }
+    } catch (e) {
+      console.log('⏳ Recalculate Rollup tab not needed or already active');
+    }
     
     await sfHelper.takeScreenshot('grandparent-filtered-interface-loaded');
     
@@ -330,47 +340,23 @@ test.describe('Grandparent Rollup Testing: Account → Contact → Case', () => 
       await sfHelper.takeScreenshot('grandparent-filtered-rollup-started');
     }
 
-    // 8. Wait for rollup completion with proper indicators
+    // 8. Wait for rollup completion - UI rollups complete quickly
     console.log('⏳ Waiting for rollup job completion...');
-    let rollupCompleted = false;
-    let attempts = 0;
-    const maxAttempts = 20; // 40 seconds total
+    await page.waitForTimeout(10000); // Wait 10 seconds for UI rollup to complete
     
-    while (!rollupCompleted && attempts < maxAttempts) {
-      await page.waitForTimeout(2000);
-      attempts++;
-      
-      // Look for completion indicators
-      const completionSelectors = [
-        '*:has-text("Rollup Job Status")',
-        '*:has-text("Completed")',
-        '*:has-text("Success")',
-        '*:has-text("Failed")',
-        '*:has-text("Error")'
-      ];
-      
-      for (const selector of completionSelectors) {
-        try {
-          const element = await page.locator(selector).first();
-          if (await element.isVisible()) {
-            const text = await element.textContent();
+    // Look for any completion indicators in the UI
+    try {
+      const statusElements = await page.locator('*:has-text("Status"), *:has-text("Complete"), *:has-text("Success"), *:has-text("Error")').all();
+      if (statusElements.length > 0) {
+        for (const element of statusElements) {
+          const text = await element.textContent();
+          if (text && (text.includes('Complete') || text.includes('Success') || text.includes('Status'))) {
             console.log(`📋 Found status indicator: "${text}"`);
-            rollupCompleted = true;
-            break;
           }
-        } catch (e) {
-          // Continue checking other selectors
         }
       }
-      
-      if (!rollupCompleted) {
-        console.log(`⏳ Still waiting for completion... (attempt ${attempts}/${maxAttempts})`);
-      }
-    }
-    
-    if (!rollupCompleted) {
-      console.log('⚠️ No completion indicator found, assuming async completion');
-      await page.waitForTimeout(5000); // Additional wait for async processing
+    } catch (e) {
+      console.log('⏳ No specific status indicators found, proceeding with validation');
     }
     
     await sfHelper.takeScreenshot('grandparent-filtered-rollup-completed');

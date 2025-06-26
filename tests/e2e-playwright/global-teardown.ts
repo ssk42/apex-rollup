@@ -32,14 +32,8 @@ async function globalTeardown(config: FullConfig) {
     console.log('🧹 Performing final test data cleanup...');
     
     // Use scratch org helper for more efficient cleanup if available
-    try {
-      await ScratchOrgHelper.cleanupTestData();
-      console.log('✅ Scratch org cleanup completed');
-    } catch {
-      // Fall back to UI-based cleanup
-      await sfHelper.cleanupTestData();
-      console.log('✅ UI-based cleanup completed');
-    }
+    await ScratchOrgHelper.cleanupTestData();
+    console.log('✅ Scratch org cleanup completed');
     
     console.log('📊 Generating test summary report...');
     await sfHelper.generateTestSummary();
@@ -47,6 +41,8 @@ async function globalTeardown(config: FullConfig) {
   } catch (error) {
     console.error('⚠️  Teardown encountered an error (non-fatal):', error);
   } finally {
+    await page.close();
+    await context.close();
     await browser.close();
   }
   
