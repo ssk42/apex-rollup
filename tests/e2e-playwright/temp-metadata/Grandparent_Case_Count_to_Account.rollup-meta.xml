@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Rollup xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Grandparent_Case_Count_to_Account</fullName>
+    <label>Grandparent Case Count to Account</label>
+    <ChildObject>Case</ChildObject>
+    <ParentObject>Account</ParentObject>
+    <RelationshipField>Contact.AccountId</RelationshipField>
+    <FieldToAggregate>Id</FieldToAggregate>
+    <AggregateOperation>COUNT</AggregateOperation>
+    <TargetField>NumberOfEmployees</TargetField>
+    <active>true</active>
+</Rollup>

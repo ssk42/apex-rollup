@@ -23,8 +23,25 @@ test.describe('Invalid Field Scenarios Error Testing', () => {
     });
     console.log(`Created test account ${account.Id} for invalid field testing`);
     
-    // Navigate to Rollup app
-    await sfHelper.navigateToApp('Rollup', 'Recalculate Rollup');
+    // Navigate directly to Rollup app (setup domain is correct for System Admin)
+    console.log('🧭 Navigating directly to Rollup app...');
+    const currentUrl = page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    const rollupUrl = `${baseUrl}/lightning/app/c__Rollup`;
+    
+    await page.goto(rollupUrl);
+    await page.waitForLoadState('domcontentloaded');
+    
+    // Navigate to Recalculate Rollup tab if needed
+    try {
+      const recalcTab = page.locator('a[title="Recalculate Rollup"]');
+      if (await recalcTab.isVisible({ timeout: 5000 })) {
+        await recalcTab.click();
+        console.log('✅ Navigated to Recalculate Rollup tab');
+      }
+    } catch (e) {
+      console.log('⏳ Recalculate Rollup tab not needed or already active');
+    }
     
     // Wait for the rollup force recalculation component to load
     console.log('⏳ Waiting for recalculation interface to load...');
@@ -221,8 +238,25 @@ test.describe('Invalid Field Scenarios Error Testing', () => {
     });
     console.log(`Created test account ${account.Id} for invalid parent field testing`);
     
-    // Navigate to Rollup app
-    await sfHelper.navigateToApp('Rollup', 'Recalculate Rollup');
+    // Navigate directly to Rollup app (setup domain is correct for System Admin)
+    console.log('🧭 Navigating directly to Rollup app...');
+    const currentUrl = page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    const rollupUrl = `${baseUrl}/lightning/app/c__Rollup`;
+    
+    await page.goto(rollupUrl);
+    await page.waitForLoadState('domcontentloaded');
+    
+    // Navigate to Recalculate Rollup tab if needed
+    try {
+      const recalcTab = page.locator('a[title="Recalculate Rollup"]');
+      if (await recalcTab.isVisible({ timeout: 5000 })) {
+        await recalcTab.click();
+        console.log('✅ Navigated to Recalculate Rollup tab');
+      }
+    } catch (e) {
+      console.log('⏳ Recalculate Rollup tab not needed or already active');
+    }
     
     // Wait for the rollup force recalculation component to load
     const rollupComponent = page.locator('c-rollup-force-recalculation');
@@ -333,8 +367,25 @@ test.describe('Invalid Field Scenarios Error Testing', () => {
     await page.goto(credentials.loginUrl);
     await sfHelper.login(credentials.username, credentials.password);
     
-    // Navigate to Rollup app
-    await sfHelper.navigateToApp('Rollup', 'Recalculate Rollup');
+    // Navigate directly to Rollup app (setup domain is correct for System Admin)
+    console.log('🧭 Navigating directly to Rollup app...');
+    const currentUrl = page.url();
+    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
+    const rollupUrl = `${baseUrl}/lightning/app/c__Rollup`;
+    
+    await page.goto(rollupUrl);
+    await page.waitForLoadState('domcontentloaded');
+    
+    // Navigate to Recalculate Rollup tab if needed
+    try {
+      const recalcTab = page.locator('a[title="Recalculate Rollup"]');
+      if (await recalcTab.isVisible({ timeout: 5000 })) {
+        await recalcTab.click();
+        console.log('✅ Navigated to Recalculate Rollup tab');
+      }
+    } catch (e) {
+      console.log('⏳ Recalculate Rollup tab not needed or already active');
+    }
     
     // Wait for the rollup force recalculation component to load
     const rollupComponent = page.locator('c-rollup-force-recalculation');

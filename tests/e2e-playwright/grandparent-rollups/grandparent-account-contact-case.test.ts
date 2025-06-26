@@ -38,7 +38,7 @@ test.describe('Grandparent Rollup Testing: Account → Contact → Case', () => 
     console.log(`Created grandparent hierarchy: Account ${account.Id} → Contact ${contact.Id} → ${cases.length} Cases`);
     console.log('Expected COUNT result: 3');
 
-    // Navigate directly to Rollup app (setup domain is correct for System Admin)
+    // Navigate directly to Rollup app (use current domain - setup is correct for System Admin)
     console.log('🧭 Navigating directly to Rollup app...');
     const currentUrl = page.url();
     const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
@@ -46,6 +46,17 @@ test.describe('Grandparent Rollup Testing: Account → Contact → Case', () => 
     
     await page.goto(rollupUrl);
     await page.waitForLoadState('domcontentloaded');
+    
+    // Navigate to Recalculate Rollup tab if needed
+    try {
+      const recalcTab = page.locator('a[title="Recalculate Rollup"]');
+      if (await recalcTab.isVisible({ timeout: 5000 })) {
+        await recalcTab.click();
+        console.log('✅ Navigated to Recalculate Rollup tab');
+      }
+    } catch (e) {
+      console.log('⏳ Recalculate Rollup tab not needed or already active');
+    }
     
     // Wait for the rollup force recalculation component to load
     console.log('⏳ Waiting for recalculation interface to load...');
@@ -237,13 +248,8 @@ test.describe('Grandparent Rollup Testing: Account → Contact → Case', () => 
     console.log('Expected COUNT result: 2 (2 High priority cases)');
 
     // Navigate directly to Rollup app (no SalesforceHelper)
-    console.log('🧭 Navigating directly to Rollup app...');
-    const currentUrl = page.url();
-    const baseUrl = currentUrl.match(/https:\/\/[^\/]+/)?.[0];
-    const rollupUrl = `${baseUrl}/lightning/app/c__Rollup`;
-    
-    await page.goto(rollupUrl);
-    await page.waitForLoadState('networkidle');
+    console.log('🧭 Navigating to Rollup app...');
+    await sfHelper.navigateToApp('Rollup', 'Recalculate Rollup');
     
     // Wait for the rollup force recalculation component to load
     console.log('⏳ Waiting for recalculation interface to load...');

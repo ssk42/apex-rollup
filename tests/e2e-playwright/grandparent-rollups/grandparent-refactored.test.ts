@@ -15,6 +15,7 @@ test.describe('Grandparent Rollup Refactored Validation', () => {
 
     await page.goto(credentials.loginUrl);
     await sfHelper.login(credentials.username, credentials.password);
+    await sfHelper.deployMetadata('/Users/stephenreitz/apex-rollup/tests/e2e-playwright/temp-metadata');
   });
 
   test.afterEach(async () => {
@@ -24,67 +25,54 @@ test.describe('Grandparent Rollup Refactored Validation', () => {
   test('Should perform a COUNT rollup from Case to Account (grandparent) via Contact', async () => {
     console.log('👴 Refactored Test: COUNT from Case -> Contact -> Account');
 
-    const rollupMetadata: RollupCMDT = {
-      DeveloperName: 'Grandparent_Case_Count_to_Account',
-      MasterLabel: 'Grandparent Case Count to Account',
-      RollupFieldOnCalcItem__c: 'Id',
-      RollupOperation__c: 'COUNT',
-      RollupFieldOnParent__c: 'NumberOfEmployees',
-      CalcItem__c: 'Case',
-      Parent__c: 'Account',
-      GrandparentRelationshipFieldPath__c: 'Contact.AccountId'
-    };
-
-    await sfHelper.createRollupCMDT(rollupMetadata);
-
     const account = await testFactory.createTestAccount({ Name: 'GrandparentCOUNT' });
+    console.log(`Created account: ${account.Id}`);
     const contact = await sfHelper.createTestRecord('Contact', {
       LastName: 'TestContact',
       AccountId: account.Id
     });
+    console.log(`Created contact: ${contact.Id}`);
 
     for (let i = 0; i < 3; i++) {
-      await sfHelper.createTestRecord('Case', { Subject: `Case ${i}`, ContactId: contact.Id });
+      const newCase = await sfHelper.createTestRecord('Case', { Subject: `Case ${i}`, ContactId: contact.Id });
+      console.log(`Created case: ${newCase.Id}`);
     }
 
+    console.log('Waiting for record update...');
     await sfHelper.waitForRecordUpdate('Account', account.Id!, {
       NumberOfEmployees: 3
     });
+    console.log('Record update complete.');
 
     const updatedAccount = await sfHelper.getRecord('Account', account.Id!, ['NumberOfEmployees']);
+    console.log(`Updated account: ${JSON.stringify(updatedAccount)}`);
     expect(updatedAccount.NumberOfEmployees).toBe(3);
   });
 
   test('Should perform a SUM rollup from Opportunity to Account (grandparent) via Contact', async () => {
     console.log('💰 Refactored Test: SUM from Opportunity -> Contact -> Account');
 
-    const rollupMetadata: RollupCMDT = {
-      DeveloperName: 'Grandparent_Opp_Sum_to_Account',
-      MasterLabel: 'Grandparent Opp Sum to Account',
-      RollupFieldOnCalcItem__c: 'Amount',
-      RollupOperation__c: 'SUM',
-      RollupFieldOnParent__c: 'AnnualRevenue',
-      CalcItem__c: 'Opportunity',
-      Parent__c: 'Account',
-      GrandparentRelationshipFieldPath__c: 'Contact.AccountId'
-    };
-
-    await sfHelper.createRollupCMDT(rollupMetadata);
-
     const account = await testFactory.createTestAccount({ Name: 'GrandparentSUM' });
+    console.log(`Created account: ${account.Id}`);
     const contact = await sfHelper.createTestRecord('Contact', {
       LastName: 'TestContact',
       AccountId: account.Id
     });
+    console.log(`Created contact: ${contact.Id}`);
 
-    await testFactory.createTestOpportunity(account.Id!, { Amount: 100, ContactId: contact.Id });
-    await testFactory.createTestOpportunity(account.Id!, { Amount: 200, ContactId: contact.Id });
+    const opp1 = await testFactory.createTestOpportunity(account.Id!, { Amount: 100, ContactId: contact.Id });
+    console.log(`Created opportunity: ${opp1.Id}`);
+    const opp2 = await testFactory.createTestOpportunity(account.Id!, { Amount: 200, ContactId: contact.Id });
+    console.log(`Created opportunity: ${opp2.Id}`);
 
+    console.log('Waiting for record update...');
     await sfHelper.waitForRecordUpdate('Account', account.Id!, {
       AnnualRevenue: 300
     });
+    console.log('Record update complete.');
 
     const updatedAccount = await sfHelper.getRecord('Account', account.Id!, ['AnnualRevenue']);
+    console.log(`Updated account: ${JSON.stringify(updatedAccount)}`);
     expect(updatedAccount.AnnualRevenue).toBe(300);
   });
 });

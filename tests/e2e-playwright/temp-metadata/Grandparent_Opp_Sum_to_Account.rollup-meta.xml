@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Rollup xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Grandparent_Opp_Sum_to_Account</fullName>
+    <label>Grandparent Opp Sum to Account</label>
+    <ChildObject>Opportunity</ChildObject>
+    <ParentObject>Account</ParentObject>
+    <RelationshipField>Contact.AccountId</RelationshipField>
+    <FieldToAggregate>Amount</FieldToAggregate>
+    <AggregateOperation>SUM</AggregateOperation>
+    <TargetField>AnnualRevenue</TargetField>
+    <active>true</active>
+</Rollup>

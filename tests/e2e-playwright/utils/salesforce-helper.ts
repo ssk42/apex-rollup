@@ -665,6 +665,22 @@ export class SalesforceHelper {
     }
   }
 
+  async deployMetadata(directory: string): Promise<void> {
+    console.log(`Deploying metadata from ${directory}...`);
+    const command = `sf project deploy start --source-dir ${directory} --target-org apex-rollup-scratch-org`;
+    try {
+      const result = require('child_process').execSync(command, {
+        encoding: 'utf8',
+        timeout: 120000,
+        env: { ...process.env, FORCE_COLOR: '0' }
+      });
+      console.log(result);
+      console.log('✅ Metadata deployed successfully');
+    } catch (error) {
+      throw new Error(`Failed to deploy metadata: ${error.message}`);
+    }
+  }
+
   private generateDeleteScript(recordIds: string[]): string {
     return `
       List<Id> recordIds = new List<Id>{${recordIds.map(id => `'${id}'`).join(', ')}};
@@ -689,10 +705,14 @@ export class SalesforceHelper {
   async createRollupCMDT(rollup: RollupCMDT): Promise<void> {
     console.log(`Creating Rollup__mdt record: ${rollup.DeveloperName}`);
     const fieldValues = Object.entries(rollup)
-      .map(([field, value]) => `${field}=${JSON.stringify(value)}`)
+      .filter(([, value]) => value !== null && value !== undefined)
+      .map(([field, value]) => {
+        const escapedValue = String(value).replace(/'/g, "\\'");
+        return `${field}='${escapedValue}'`;
+      })
       .join(' ');
 
-    const command = `sf data create record --sobject Rollup__mdt --values "${fieldValues}" --target-org apex-rollup-scratch-org --json`;
+    const command = `sf data create record --sobject Rollup__mdt --values "${fieldValues}" --target-org apex-rollup-scratch-org`;
     
     try {
       const result = require('child_process').execSync(command, {
@@ -700,10 +720,6 @@ export class SalesforceHelper {
         timeout: 30000,
         env: { ...process.env, FORCE_COLOR: '0' }
       });
-      const createData = JSON.parse(result);
-      if (createData.status !== 0) {
-        throw new Error(`CLI command failed: ${createData.message}`);
-      }
       console.log(`✅ Created Rollup__mdt: ${rollup.DeveloperName}`);
     } catch (error) {
       throw new Error(`Failed to create Rollup__mdt record: ${error.message}`);
