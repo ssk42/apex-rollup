@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "servers": [
+      {
+        "name": "default",
+        "url": "http://localhost:8080"
+      }
+    ]
+  }
+}
