@@ -82,28 +82,12 @@ test.describe('Grandparent Rollup Mixed Operations Testing', () => {
       console.log('✅ Filled Child Field: Amount');
     }
     
-    // 4. Fill Lookup Field (ContactId - direct relationship to intermediate object)
+    // 4. Fill Lookup Field (Contact.AccountId - grandparent relationship per lessons learned)
     const lookupFieldInput = page.locator('input[name="LookupFieldOnCalcItem__c"]');
     if (await lookupFieldInput.isVisible()) {
       await lookupFieldInput.clear();
-      await lookupFieldInput.fill('ContactId');
-      console.log('✅ Filled Lookup Field: ContactId');
-    }
-    
-    // 4a. Fill One To Many Grandparent Fields (Contact.AccountId)
-    const oneToManyFieldInput = page.locator('input[name="OneToManyGrandparentFields__c"]');
-    if (await oneToManyFieldInput.isVisible()) {
-      await oneToManyFieldInput.clear();
-      await oneToManyFieldInput.fill('Contact.AccountId');
-      console.log('✅ Filled One To Many Grandparent Fields: Contact.AccountId');
-    }
-    
-    // 4b. Fill Grandparent Relationship Field Path (Contact.Account.AnnualRevenue)
-    const grandparentPathInput = page.locator('input[name="GrandparentRelationshipFieldPath__c"]');
-    if (await grandparentPathInput.isVisible()) {
-      await grandparentPathInput.clear();
-      await grandparentPathInput.fill('Contact.Account.AnnualRevenue');
-      console.log('✅ Filled Grandparent Relationship Field Path: Contact.Account.AnnualRevenue');
+      await lookupFieldInput.fill('Contact.AccountId');
+      console.log('✅ Filled Lookup Field: Contact.AccountId');
     }
     
     // 5. Fill Parent Object (Account)
@@ -219,28 +203,12 @@ test.describe('Grandparent Rollup Mixed Operations Testing', () => {
       console.log('✅ Filled Child Field: Amount');
     }
     
-    // 4. Fill Lookup Field (ContactId - direct relationship to intermediate object)
+    // 4. Fill Lookup Field (Contact.AccountId - grandparent relationship per lessons learned)
     const lookupFieldInput = page.locator('input[name="LookupFieldOnCalcItem__c"]');
     if (await lookupFieldInput.isVisible()) {
       await lookupFieldInput.clear();
-      await lookupFieldInput.fill('ContactId');
-      console.log('✅ Filled Lookup Field: ContactId');
-    }
-    
-    // 4a. Fill One To Many Grandparent Fields (Contact.AccountId)
-    const oneToManyFieldInput = page.locator('input[name="OneToManyGrandparentFields__c"]');
-    if (await oneToManyFieldInput.isVisible()) {
-      await oneToManyFieldInput.clear();
-      await oneToManyFieldInput.fill('Contact.AccountId');
-      console.log('✅ Filled One To Many Grandparent Fields: Contact.AccountId');
-    }
-    
-    // 4b. Fill Grandparent Relationship Field Path (Contact.Account.AnnualRevenue)
-    const grandparentPathInput = page.locator('input[name="GrandparentRelationshipFieldPath__c"]');
-    if (await grandparentPathInput.isVisible()) {
-      await grandparentPathInput.clear();
-      await grandparentPathInput.fill('Contact.Account.AnnualRevenue');
-      console.log('✅ Filled Grandparent Relationship Field Path: Contact.Account.AnnualRevenue');
+      await lookupFieldInput.fill('Contact.AccountId');
+      console.log('✅ Filled Lookup Field: Contact.AccountId');
     }
     
     // 5. Fill Parent Object (Account)
