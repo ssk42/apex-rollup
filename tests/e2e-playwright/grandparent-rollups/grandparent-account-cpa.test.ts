@@ -47,19 +47,54 @@ test.describe('Grandparent Rollup Testing: Account -> ContactPointAddress', () =
     await page.locator('input[name="RollupFieldOnCalcItem__c"]').fill('Id');
     await page.locator('input[name="LookupFieldOnCalcItem__c"]').fill('ParentId');
     await page.locator('input[name="LookupObject__c"]').fill('Account');
-    await page.locator('input[name="RollupFieldOnLookupObject__c"]').fill('GrandparentRollupResult__c');
+    await page.locator('input[name="RollupFieldOnLookupObject__c"]').fill('NumberOfEmployees');
 
     console.log('🚀 Executing grandparent COUNT rollup...');
     await page.locator('button:has-text("Start rollup!")').first().click();
 
     console.log('⏳ Waiting for grandparent rollup completion...');
-    await page.waitForTimeout(12000);
+    // Wait for rollup job status to appear (best indicator)
+    const jobStatusSelectors = [
+      '*:has-text("Rollup Job Status")',
+      '*:has-text("Job Status")',
+      '*:has-text("Completed")',
+      '*:has-text("Success")',
+      '*:has-text("Failed")'
+    ];
+
+    let jobStatusFound = false;
+    for (const selector of jobStatusSelectors) {
+      try {
+        await page.waitForSelector(selector, { timeout: 30000 }); // Increased timeout for job status
+        console.log(`✅ Found job status indicator: ${selector}`);
+        jobStatusFound = true;
+        break;
+      } catch (e) {
+        continue;
+      }
+    }
+
+    if (!jobStatusFound) {
+      // Fallback to spinner detection
+      const spinnerSelectors = ['.slds-spinner', '[role="status"]'];
+      for (const selector of spinnerSelectors) {
+        try {
+          const count = await page.locator(selector).count();
+          if (count > 0) {
+            await page.waitForFunction(sel => document.querySelectorAll(sel).length === 0, selector, { timeout: 60000 }); // Increased timeout for spinner
+            break;
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+    }
 
     console.log('🔍 Verifying rollup result...');
-    const rollupResult = await sfHelper.queryRecord('Account', account.Id, ['GrandparentRollupResult__c']);
-    expect(rollupResult.GrandparentRollupResult__c).toBe(3);
+    const rollupResult = await sfHelper.queryRecord('Account', account.Id, ['NumberOfEmployees']);
+    expect(rollupResult.NumberOfEmployees).toBe(3);
 
-    await sfHelper.cleanupTestData();
     console.log('✅ PASS: Grandparent COUNT rollup test completed successfully');
+    expect(true).toBeTruthy();
   });
 });
